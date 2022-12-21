@@ -1,0 +1,88 @@
+html,
+body {
+  overflow-x: hidden; /* Prevent scroll on narrow devices */
+  padding-bottom: 20px;
+}
+
+@media (max-width: 991.98px) {
+  .offcanvas-collapse {
+    position: fixed;
+    top: 56px; /* Height of navbar */
+    bottom: 0;
+    left: 100%;
+    width: 100%;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    overflow-y: auto;
+    visibility: hidden;
+    background-color: #343a40;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out;
+  }
+  .offcanvas-collapse.open {
+    visibility: visible;
+    transform: translateX(-100%);
+  }
+}
+
+.nav-scroller .nav {
+  color: rgba(255, 255, 255, .75);
+}
+
+.nav-scroller .nav-link {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  font-size: .875rem;
+  color: #6c757d;
+}
+
+.nav-scroller .nav-link:hover {
+  color: #007bff;
+}
+
+.nav-scroller .active {
+  font-weight: 500;
+  color: #343a40;
+}
+
+.highlight:hover {
+  color: #67236c;
+}
+
+.submit:hover {
+  background-color: #67236c;
+}
+
+.bg-purple {
+  background-color: #67236c;
+}
+
+.bg-grey {
+  background-color: #222222;
+}
+
+.text-purple {
+  color: #67236c;
+}
+
+.collapsible{
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+textarea {
+  resize: none;
+}
+
+input[type=submit] {
+  background-color: #3e9841; /* Green */
+  border: none;
+  color: white;
+  padding: 5px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1rem;
+  transition-duration: 0.4s;
+  border-radius: 4px;
+}

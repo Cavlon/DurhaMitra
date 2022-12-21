@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The Durham Social Media Site">
+    <meta name="author" content="Calvin Dantis">
+    <title>DurhaMitra</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/offcanvas-navbar/">
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/images/favicon-32x32.png" />
+
+    
+
+    
+
+<link href="./assets/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .b-example-divider {
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
+
+    
+    <!-- Custom styles for this template -->
+    <link href="./assets/css/style.css" rel="stylesheet">
+  </head>
+  <body class="bg-dark">
+    
+<nav class="navbar navbar-dark bg-grey" aria-label="Dark offcanvas navbar">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Durha<span class="text-purple">Mitra</span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbarDark" aria-controls="offcanvasNavbarDark">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbarDark" aria-labelledby="offcanvasNavbarDarkLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasNavbarDarkLabel">Make a Post</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <div class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <form method="post" id="createPost" class="form" enctype="multipart/form-data">
+              <input class="form-control me-2" type="text" name="name" placeholder="Name" aria-label="Name" required><br>
+              <input class="form-control me-2" type="text" name="college" placeholder="College" aria-label="College" required><br>
+              <textarea class="form-control" name="commentText" rows="2" style="background: #fff;" placeholder="Post Text"></textarea><br>
+              <input type="file" name="imageUpload" id="imageUpload" accept="image/png, image/gif, image/jpeg" onchange="displayImages(event)" style="display: none;" multiple>
+              <label class="highlight" for="imageUpload" style="cursor: pointer;"><strong>Upload Images</strong></label><br>
+              <input style="margin-top: 20px;" class="submit" type="submit" value="Submit">
+              <div id="uploadedImages">
+
+              </div>
+            </form>          
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+<div class="nav-scroller bg-body shadow-sm">
+  <nav class="nav" aria-label="Secondary navigation">
+    <a class="nav-link active" aria-current="page">
+      All Posts
+      <span class="badge text-bg-light rounded-pill align-text-bottom">0</span>
+    </a>
+    <a class="nav-link">
+      Your Posts
+      <span class="badge text-bg-light rounded-pill align-text-bottom">0</span>
+    </a>
+    <a class="nav-link">Most Recent Posts</a>
+  </nav>
+</div>
+
+<main class="container">
+  <div class="d-flex align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">
+    <img src="./assets/images/DurhamLogoWhite.png" width="40" height="40" alt="">
+    <div class="lh-1" style="padding-left: 5px;">
+      <h1 class="h6 mb-0 text-white lh-1">DurhaMitra</h1>
+      <small>Share your Durham experiences! Share events, notes, adverts or just share how life at Durham is going!</small>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-body rounded shadow-sm">
+    <h6 class="border-bottom pb-2 mb-0">Posts</h6>
+
+    <div id="posts">
+
+    </div>
+
+    <!--Single Post-->
+    <div class="border-bottom">
+      <!--Text-->
+      <div class="d-flex text-muted pt-3">
+        <!--Profile Pic-->
+        <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+  
+        <p class="pb-3 mb-0 small lh-sm">
+          <!--Username-->
+          <button class="navbar-toggler d-block" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbarDark" aria-controls="offcanvasNavbarDark">
+            <strong class="d-block text-gray-dark highlight">@Cavlon</strong>
+          </button>
+          <!--Post Text-->
+          Check out these sick narsty images I made!!!!!11!!!
+        </p>
+      </div>
+
+       <!--Images-->
+      <div>
+        <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="./assets/images/OceanBreeze.png" role="img" aria-label="Placeholder: Responsive image" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="./assets/images/OceanBreeze.png" role="img" aria-label="Placeholder: Responsive image" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="./assets/images/At The End Of My Journey Crema.jpg" role="img" aria-label="Placeholder: Responsive image" preserveAspectRatio="xMidYMid slice" focusable="false">
+      </div>
+
+      <div class="text-muted">
+        <p class="pt-2 mb-0 small lh-sm">
+           <!--Like Button-->
+          <button class="navbar-toggler text-gray-dark highlight" style="padding-left: 8px;" type="button"><strong>Like</strong></button>
+          <span class="badge text-bg-light rounded-pill align-text-bottom">0</span>
+
+           <!--Comment Button-->
+          <button type="button" class="navbar-toggler text-gray-dark highlight collapser" style="padding-left: 8px;" type="button"><strong>Comment</strong></button>
+          <div class="collapsible">
+            <form method="post" class="form card-footer pt-3 border-0 createComment" style="background-color: #f8f9fa; padding-bottom: 55px;" enctype="multipart/form-data">
+              <div class="d-flex flex-start w-100">
+                <div class="form-outline w-100" style="padding-left: 30px; padding-right: 30px;">
+                  <input class="form-control me-2" type="text" name="name" placeholder="Name" aria-label="Name" required><br>
+                  <input class="form-control me-2" type="text" name="college" placeholder="College" aria-label="College" required><br>
+                  <textarea class="form-control" id="commentText" rows="2" style="background: #fff;" placeholder="Add a comment..."></textarea>
+                </div>
+              </div>
+              <div class="float-end mt-2 pt-1" style="padding-right: 30px;">
+                <button type="button" class="btn btn-primary btn-sm">Post comment</button>
+              </div>
+            </form>
+          </div>
+        </p>
+      </div> 
+      
+      <div class="d-flex text-muted" style="padding-left: 30px;">
+        <!--Profile Pic-->
+        <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="20" height="20" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+  
+        <p class="pb-3 pt-1 mb-0 lh-1" style="font-size:.8em">
+          <!--Username-->
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbarDark" aria-controls="offcanvasNavbarDark">
+            <strong class="d-block text-gray-dark highlight">@Cavlon</strong>
+          </button>
+          <!--Post Text-->
+          Those are sick!!!!!11!
+        </p>
+      </div>
+    </div>
+
+
+    <div class="d-flex text-muted pt-3">
+      <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+
+      <p class="pb-3 mb-0 small lh-sm border-bottom">
+        <strong class="d-block text-gray-dark">@Cavlon</strong>
+        Some more representative placeholder content, related to this other user. Another status update, perhaps.
+      </p>
+    </div>
+    <div class="d-flex text-muted pt-3">
+      <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+
+      <p class="pb-3 mb-0 small lh-sm border-bottom">
+        <strong class="d-block text-gray-dark">@Cavlon</strong>
+        This user also gets some representative placeholder content. Maybe they did something interesting, and you really want to highlight this in the recent updates.
+      </p>
+    </div>
+  </div>
+
+  <div class="my-3 p-3 bg-body rounded shadow-sm">
+    <h6 class="border-bottom pb-2 mb-0">Suggestions</h6>
+    <div class="d-flex text-muted pt-3">
+      <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
+
+      <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+        <div class="d-flex justify-content-between">
+          <strong class="text-gray-dark">Full Name</strong>
+          <a href="#">Follow</a>
+        </div>
+        <span class="d-block">@username</span>
+      </div>
+    </div>
+    <div class="d-flex text-muted pt-3">
+      <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
+
+      <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+        <div class="d-flex justify-content-between">
+          <strong class="text-gray-dark">Full Name</strong>
+          <a href="#">Follow</a>
+        </div>
+        <span class="d-block">@username</span>
+      </div>
+    </div>
+    <div class="d-flex text-muted pt-3">
+      <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
+
+      <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+        <div class="d-flex justify-content-between">
+          <strong class="text-gray-dark">Full Name</strong>
+          <a href="#">Follow</a>
+        </div>
+        <span class="d-block">@username</span>
+      </div>
+    </div>
+    <small class="d-block text-end mt-3">
+      <a href="#">All suggestions</a>
+    </small>
+  </div>
+</main>
+
+
+    <script src="./assets/js/bootstrap.bundle.min.js"></script>
+
+    <script src="./assets/js/client.js"></script>
+  </body>
+</html>
