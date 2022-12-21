@@ -92,7 +92,7 @@
             <form method="post" id="createPost" class="form" enctype="multipart/form-data">
               <input class="form-control me-2" type="text" name="name" placeholder="Name" aria-label="Name" required><br>
               <input class="form-control me-2" type="text" name="college" placeholder="College" aria-label="College" required><br>
-              <textarea class="form-control" name="commentText" rows="2" style="background: #fff;" placeholder="Post Text"></textarea><br>
+              <textarea class="form-control" name="postText" rows="2" style="background: #fff;" placeholder="Post Text"></textarea><br>
               <input type="file" name="imageUpload" id="imageUpload" accept="image/png, image/gif, image/jpeg" onchange="displayImages(event)" style="display: none;" multiple>
               <label class="highlight" for="imageUpload" style="cursor: pointer;"><strong>Upload Images</strong></label><br>
               <input style="margin-top: 20px;" class="submit" type="submit" value="Submit">
@@ -135,128 +135,6 @@
     <div id="posts">
 
     </div>
-
-    <!--Single Post-->
-    <div class="border-bottom">
-      <!--Text-->
-      <div class="d-flex text-muted pt-3">
-        <!--Profile Pic-->
-        <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
-  
-        <p class="pb-3 mb-0 small lh-sm">
-          <!--Username-->
-          <button class="navbar-toggler d-block" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbarDark" aria-controls="offcanvasNavbarDark">
-            <strong class="d-block text-gray-dark highlight">@Cavlon</strong>
-          </button>
-          <!--Post Text-->
-          Check out these sick narsty images I made!!!!!11!!!
-        </p>
-      </div>
-
-       <!--Images-->
-      <div>
-        <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="./assets/images/OceanBreeze.png" role="img" aria-label="Placeholder: Responsive image" preserveAspectRatio="xMidYMid slice" focusable="false">
-        <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="./assets/images/OceanBreeze.png" role="img" aria-label="Placeholder: Responsive image" preserveAspectRatio="xMidYMid slice" focusable="false">
-        <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="./assets/images/At The End Of My Journey Crema.jpg" role="img" aria-label="Placeholder: Responsive image" preserveAspectRatio="xMidYMid slice" focusable="false">
-      </div>
-
-      <div class="text-muted">
-        <p class="pt-2 mb-0 small lh-sm">
-           <!--Like Button-->
-          <button class="navbar-toggler text-gray-dark highlight" style="padding-left: 8px;" type="button"><strong>Like</strong></button>
-          <span class="badge text-bg-light rounded-pill align-text-bottom">0</span>
-
-           <!--Comment Button-->
-          <button type="button" class="navbar-toggler text-gray-dark highlight collapser" style="padding-left: 8px;" type="button"><strong>Comment</strong></button>
-          <div class="collapsible">
-            <form method="post" class="form card-footer pt-3 border-0 createComment" style="background-color: #f8f9fa; padding-bottom: 55px;" enctype="multipart/form-data">
-              <div class="d-flex flex-start w-100">
-                <div class="form-outline w-100" style="padding-left: 30px; padding-right: 30px;">
-                  <input class="form-control me-2" type="text" name="name" placeholder="Name" aria-label="Name" required><br>
-                  <input class="form-control me-2" type="text" name="college" placeholder="College" aria-label="College" required><br>
-                  <textarea class="form-control" id="commentText" rows="2" style="background: #fff;" placeholder="Add a comment..."></textarea>
-                </div>
-              </div>
-              <div class="float-end mt-2 pt-1" style="padding-right: 30px;">
-                <button type="button" class="btn btn-primary btn-sm">Post comment</button>
-              </div>
-            </form>
-          </div>
-        </p>
-      </div> 
-      
-      <div class="d-flex text-muted" style="padding-left: 30px;">
-        <!--Profile Pic-->
-        <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="20" height="20" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
-  
-        <p class="pb-3 pt-1 mb-0 lh-1" style="font-size:.8em">
-          <!--Username-->
-          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbarDark" aria-controls="offcanvasNavbarDark">
-            <strong class="d-block text-gray-dark highlight">@Cavlon</strong>
-          </button>
-          <!--Post Text-->
-          Those are sick!!!!!11!
-        </p>
-      </div>
-    </div>
-
-
-    <div class="d-flex text-muted pt-3">
-      <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
-
-      <p class="pb-3 mb-0 small lh-sm border-bottom">
-        <strong class="d-block text-gray-dark">@Cavlon</strong>
-        Some more representative placeholder content, related to this other user. Another status update, perhaps.
-      </p>
-    </div>
-    <div class="d-flex text-muted pt-3">
-      <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
-
-      <p class="pb-3 mb-0 small lh-sm border-bottom">
-        <strong class="d-block text-gray-dark">@Cavlon</strong>
-        This user also gets some representative placeholder content. Maybe they did something interesting, and you really want to highlight this in the recent updates.
-      </p>
-    </div>
-  </div>
-
-  <div class="my-3 p-3 bg-body rounded shadow-sm">
-    <h6 class="border-bottom pb-2 mb-0">Suggestions</h6>
-    <div class="d-flex text-muted pt-3">
-      <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
-
-      <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-        <div class="d-flex justify-content-between">
-          <strong class="text-gray-dark">Full Name</strong>
-          <a href="#">Follow</a>
-        </div>
-        <span class="d-block">@username</span>
-      </div>
-    </div>
-    <div class="d-flex text-muted pt-3">
-      <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
-
-      <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-        <div class="d-flex justify-content-between">
-          <strong class="text-gray-dark">Full Name</strong>
-          <a href="#">Follow</a>
-        </div>
-        <span class="d-block">@username</span>
-      </div>
-    </div>
-    <div class="d-flex text-muted pt-3">
-      <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
-
-      <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-        <div class="d-flex justify-content-between">
-          <strong class="text-gray-dark">Full Name</strong>
-          <a href="#">Follow</a>
-        </div>
-        <span class="d-block">@username</span>
-      </div>
-    </div>
-    <small class="d-block text-end mt-3">
-      <a href="#">All suggestions</a>
-    </small>
   </div>
 </main>
 

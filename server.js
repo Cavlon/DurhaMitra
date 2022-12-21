@@ -5,20 +5,36 @@ const path = require('path');
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'client')));
 
-const JSONfileName = './posts.json';
+const postsFileName = './posts.json';
+const commentsFileName = './comments.json';
 
 // eslint-disable-next-line prefer-const
-let posts = require(JSONfileName);
+let posts = require(postsFileName);
+// eslint-disable-next-line prefer-const
+let comments = require(commentsFileName);
 
 app.post('/uploadPost', function (req, resp) {
   const postData = req.body;
   posts.unshift(postData);
-  fs.writeFileSync(JSONfileName, JSON.stringify(posts));
+  comments.unshift([]);
+  fs.writeFileSync(postsFileName, JSON.stringify(posts));
+  fs.writeFileSync(commentsFileName, JSON.stringify(comments));
   resp.send(posts);
+});
+
+app.post('/uploadComment', function (req, resp) {
+  const commentData = req.body;
+  comments[commentData.index].push(commentData);
+  fs.writeFileSync(commentsFileName, JSON.stringify(comments));
+  resp.send(comments);
 });
 
 app.get('/posts', function (req, resp) {
   resp.send(posts);
+});
+
+app.get('/comments', function (req, resp) {
+  resp.send(comments);
 });
 
 app.listen(8080);

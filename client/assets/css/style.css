@@ -44,6 +44,10 @@ body {
   color: #343a40;
 }
 
+.highlight {
+  transition-duration: 0.2s;
+}
+
 .highlight:hover {
   color: #67236c;
 }
@@ -83,6 +87,6 @@ input[type=submit] {
   text-decoration: none;
   display: inline-block;
   font-size: 1rem;
-  transition-duration: 0.4s;
+  transition-duration: 0.2s;
   border-radius: 4px;
 }
