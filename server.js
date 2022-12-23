@@ -29,12 +29,16 @@ app.post('/uploadComment', function (req, resp) {
   resp.send(comments);
 });
 
+app.get('/postslen', function (req, resp) {
+  resp.send(Object.keys(posts));
+});
+
 app.get('/posts', function (req, resp) {
-  resp.send(posts);
+  resp.send(posts[req.query.index]);
 });
 
 app.get('/comments', function (req, resp) {
-  resp.send(comments);
+  resp.send(comments[req.query.index]);
 });
 
 app.listen(8080);

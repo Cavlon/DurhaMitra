@@ -91,7 +91,25 @@
           <div class="navbar-nav justify-content-end flex-grow-1 pe-3">
             <form method="post" id="createPost" class="form" enctype="multipart/form-data">
               <input class="form-control me-2" type="text" name="name" placeholder="Name" aria-label="Name" required><br>
-              <input class="form-control me-2" type="text" name="college" placeholder="College" aria-label="College" required><br>
+              <select class="form-control me-2" name="college">
+                <option value="collingwood">Collingwood College</option>
+                <option value="grey">Grey College</option>
+                <option value="hatfield">Hatfield College</option>
+                <option value="john-snow">John Snow College</option>
+                <option value="josephine-butler">Josephine Butler College</option>
+                <option value="south">South College</option>
+                <option value="aidens">St Aidan's College</option>
+                <option value="chads">St Chad's College</option>
+                <option value="cuthberts">St Cuthbert's Society</option>
+                <option value="hild-bede">College of St Hild & St Bede</option>
+                <option value="johns">St John's College</option>
+                <option value="marys">St Mary's College</option>
+                <option value="stephenson">Stephenson College</option>
+                <option value="trevelyan">Trevelyan College</option>
+                <option value="university">University College</option>
+                <option value="van-mildert">Van Mildert College</option>
+                <option value="ustinov">Ustinov College</option>
+              </select><br>
               <textarea class="form-control" name="postText" rows="2" style="background: #fff;" placeholder="Post Text"></textarea><br>
               <input type="file" name="imageUpload" id="imageUpload" accept="image/png, image/gif, image/jpeg" onchange="displayImages(event)" style="display: none;" multiple>
               <label class="highlight" for="imageUpload" style="cursor: pointer;"><strong>Upload Images</strong></label><br>
