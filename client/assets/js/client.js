@@ -1,25 +1,29 @@
-/* eslint-disable no-unused-vars */
-let collapsers = document.getElementsByClassName('collapser');
-let collapsibles = document.getElementsByClassName('collapsible');
-
 const postForm = document.getElementById('createPost');
-
 const postsHTML = document.getElementById('posts');
-
 const imageHolder = document.getElementById('uploadedImages');
+const allPostsLabel = document.getElementById('allPosts');
+const visiblePostsLabel = document.getElementById('visiblePosts');
 
 let commentForms;
 let commentSections;
-let posts;
+let collapsers;
+let collapsibles;
+
+const MAX_WIDTH = 500;
+const MAX_HEIGHT = 300;
 
 window.onload = async function () {
-  const response = await fetch('http://127.0.0.1:8080/postslen');
+  const response = await fetch('http://127.0.0.1:8080/posts');
   const body = await response.text();
-  const postslen = JSON.parse(body).length;
-  for (let i = postslen - 1; i >= 0; i--) {
-    await addPost(i);
+  const posts = JSON.parse(body);
+  for (let i = posts.length - 1; i >= 0; i--) {
+    createPostHTML(posts[i]);
   }
+
+  updateElements();
   postForm.reset();
+  allPostsLabel.innerHTML = posts.length;
+  visiblePostsLabel.innerHTML = posts.length;
 };
 
 // Submits the post form
@@ -27,20 +31,27 @@ postForm.addEventListener('submit', async function (event) {
   // eslint-disable-next-line no-undef
   const formData = new FormData(postForm);
   event.preventDefault();
+
   const images = formData.getAll('imageUpload');
   const encodedImages = await encodeImage(images);
   for (let i = 0; i < encodedImages.length; i++) {
-    console.log('old: ' + encodedImages[i].length);
     const compressed = await reduceImageSize(encodedImages[i]);
     if (compressed.length < encodedImages[i].length) {
       encodedImages[i] = compressed;
-      console.log('new: ' + encodedImages[i].length);
     }
   }
+
+  const date = new Date();
+  const hours = date.getUTCHours();
+  const mins = date.getUTCMinutes();
+  const secs = date.getUTCSeconds();
+  const dateStr = `${date.getUTCDate()}/${date.getUTCMonth()}/${date.getUTCFullYear()} ${(hours < 10) ? '0' + hours.toString() : hours}:${(mins < 10) ? '0' + mins.toString() : mins}:${(secs < 10) ? '0' + secs.toString() : secs}`;
+
   const data = {
     name: formData.get('name'),
     college: formData.get('college'),
     text: formData.get('postText'),
+    date: dateStr,
     images: encodedImages
   };
   const postJSON = JSON.stringify(data);
@@ -54,6 +65,7 @@ postForm.addEventListener('submit', async function (event) {
   });
   await addPost(0);
   postForm.reset();
+  imageHolder.innerHTML = '';
 });
 
 function updateCommentForms () {
@@ -66,11 +78,14 @@ function updateCommentForms () {
       const data = {
         name: formData.get('name'),
         college: formData.get('college'),
-        text: formData.get('commentText'),
-        index: i
+        text: formData.get('commentText')
       };
       const commentJSON = JSON.stringify(data);
-      await fetch('http://127.0.0.1:8080/uploadComment', {
+
+      const url = new URL('http://127.0.0.1:8080/uploadComment/');
+      url.search = new URLSearchParams([['index', i.toString()]]).toString();
+
+      await fetch(url, {
         method: 'post',
         headers: {
         Accept: 'application/json, text/plain, */*',
@@ -78,6 +93,7 @@ function updateCommentForms () {
         },
         body: commentJSON
       });
+
       commentForms[i].reset();
       addComment(i);
     });
@@ -87,6 +103,8 @@ function updateCommentForms () {
 // Allows for collapsible menus
 // Modified code from https://www.w3schools.com/howto/howto_js_collapsible.asp
 function updateCollapsibles () {
+  collapsers = document.getElementsByClassName('collapser');
+  collapsibles = document.getElementsByClassName('collapsible');
   for (let i = 0; i < collapsers.length; i++) {
     collapsers[i].addEventListener('click', function () {
       this.classList.toggle('active');
@@ -100,8 +118,8 @@ function updateCollapsibles () {
 }
 
 // Displays images in the create post tab
+// eslint-disable-next-line no-unused-vars
 function displayImages (event) {
-  const images = imageHolder.children;
   const files = event.target.files;
   let imagesHTML = '';
   for (let i = 0; i < files.length; i++) {
@@ -148,8 +166,6 @@ function encodeImage (images) {
 // Modified code from https://github.com/Gimyk/resize_base64_image
 // That code was a modified version of code from https://gist.github.com/ORESoftware/ba5d03f3e1826dc15d5ad2bcec37f7bf
 async function reduceImageSize (base64Img) {
-  const MAX_WIDTH = 500;
-  const MAX_HEIGHT = 300;
   return new Promise((resolve) => {
     // eslint-disable-next-line no-undef
     const img = new Image();
@@ -158,8 +174,6 @@ async function reduceImageSize (base64Img) {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        console.log(width);
-        console.log(height);
 
         if (width > height) {
             if (width > MAX_WIDTH) {
@@ -180,8 +194,6 @@ async function reduceImageSize (base64Img) {
               width = MAX_WIDTH;
             }
         }
-        console.log(width);
-        console.log(height);
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
@@ -198,25 +210,45 @@ async function addPost (index) {
   const response = await fetch(url);
   const postJSON = await response.text();
   const post = JSON.parse(postJSON);
+
+  createPostHTML(post);
+
+  updateElements();
+
+  allPostsLabel.innerHTML = parseInt(allPostsLabel.innerHTML) + 1;
+  visiblePostsLabel.innerHTML = allPostsLabel.innerHTML;
+}
+
+function updateElements () {
+  commentSections = document.getElementsByClassName('commentSection');
+
+  for (let i = 0; i < commentSections.length; i++) {
+    addComment(i);
+  }
+  updateCollapsibles();
+  updateCommentForms();
+}
+
+function createPostHTML (post) {
   let imagesHTML = '';
-    if (post.images) {
-      post.images.forEach(image => {
-        imagesHTML += `
-        <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="${image}" role="img" aria-label="Post Image" preserveAspectRatio="xMidYMid slice" focusable="false"> \n
-        `;
-      });
-    }
+  if (post.images) {
+    post.images.forEach(image => {
+      imagesHTML += `
+      <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="${image}" role="img" aria-label="Post Image" preserveAspectRatio="xMidYMid slice" focusable="false"> \n
+      `;
+    });
+  }
   postsHTML.innerHTML = `
-  <div class="border-bottom post">
+  <div class="border-bottom">
       <!--Text-->
       <div class="d-flex text-muted pt-3">
         <!--Profile Pic-->
-        <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/${post.college}.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
   
         <p class="pb-3 mb-0 small lh-sm">
-          <!--Username-->
-          <strong class="d-block text-gray-dark">@${post.name}</strong>
-          <!--Post Text-->
+          <span class="d-block">
+          <strong class="text-gray-dark">@${post.name}</strong>   <span style="font-size: .7rem;">${post.date}</span>
+          </span>  
           ${post.text}
         </p>
       </div>
@@ -274,16 +306,6 @@ async function addPost (index) {
       </div>
     </div> \n
   ` + postsHTML.innerHTML;
-
-  collapsers = document.getElementsByClassName('collapser');
-  collapsibles = document.getElementsByClassName('collapsible');
-  commentSections = document.getElementsByClassName('commentSection');
-
-  for (let i = 0; i < commentSections.length; i++) {
-    addComment(i);
-  }
-  updateCollapsibles();
-  updateCommentForms();
 }
 
 async function addComment (index) {
@@ -293,12 +315,13 @@ async function addComment (index) {
   const commentJSON = await response.text();
   const comments = JSON.parse(commentJSON);
   const section = commentSections[index];
+
   let commentHTML = '';
   for (let i = 0; i < comments.length; i++) {
     commentHTML += `
     <div class="d-flex text-muted border-top" style="padding-top: 7px; margin-bottom: -5px;">
       <!--Profile Pic-->
-      <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="20" height="20" src="./assets/images/Manic Joy Boy Profile Pic.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+      <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="20" height="20" src="./assets/images/${comments[i].college}.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
 
       <p class="pb-3 pt-1 mb-0 lh-1" style="font-size:.8em">
         <!--Username-->

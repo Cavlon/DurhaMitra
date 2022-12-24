@@ -24,7 +24,7 @@ app.post('/uploadPost', function (req, resp) {
 
 app.post('/uploadComment', function (req, resp) {
   const commentData = req.body;
-  comments[commentData.index].push(commentData);
+  comments[req.query.index].push(commentData);
   fs.writeFileSync(commentsFileName, JSON.stringify(comments));
   resp.send(comments);
 });
@@ -34,7 +34,11 @@ app.get('/postslen', function (req, resp) {
 });
 
 app.get('/posts', function (req, resp) {
-  resp.send(posts[req.query.index]);
+  if (req.query.index) {
+    resp.send(posts[req.query.index]);
+  } else {
+    resp.send(posts);
+  }
 });
 
 app.get('/comments', function (req, resp) {
