@@ -26,7 +26,13 @@ app.post('/uploadComment', function (req, resp) {
   const commentData = req.body;
   comments[req.query.index].push(commentData);
   fs.writeFileSync(commentsFileName, JSON.stringify(comments));
-  resp.send(comments);
+  resp.send(comments[req.query.index]);
+});
+
+app.post('/changeLikes', function (req, resp) {
+  posts[req.query.index].likes = req.query.likes;
+  fs.writeFileSync(postsFileName, JSON.stringify(posts));
+  resp.send(posts[req.query.index].likes);
 });
 
 app.get('/postslen', function (req, resp) {

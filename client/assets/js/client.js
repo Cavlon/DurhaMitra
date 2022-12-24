@@ -8,6 +8,7 @@ let commentForms;
 let commentSections;
 let collapsers;
 let collapsibles;
+let likeButtons;
 
 const MAX_WIDTH = 500;
 const MAX_HEIGHT = 300;
@@ -52,6 +53,7 @@ postForm.addEventListener('submit', async function (event) {
     college: formData.get('college'),
     text: formData.get('postText'),
     date: dateStr,
+    likes: 0,
     images: encodedImages
   };
   const postJSON = JSON.stringify(data);
@@ -96,6 +98,32 @@ function updateCommentForms () {
 
       commentForms[i].reset();
       addComment(i);
+    });
+  }
+}
+
+function updateLikeButtons () {
+  likeButtons = document.getElementsByClassName('like');
+  for (let i = 0; i < likeButtons.length; i++) {
+    likeButtons[i].addEventListener('click', async function (event) {
+      const likeDisplay = likeButtons[i].nextElementSibling;
+      let likes = parseInt(likeDisplay.innerHTML);
+      if (likeButtons[i].classList.contains('text-purple')) {
+        likes -= 1;
+        likeButtons[i].classList.remove('text-purple');
+        likeDisplay.classList.remove('text-purple');
+      } else {
+        likes += 1;
+        likeButtons[i].classList.add('text-purple');
+        likeDisplay.classList.add('text-purple');
+      }
+      likeDisplay.innerHTML = likes;
+      const url = new URL('http://127.0.0.1:8080/changeLikes/');
+      url.search = new URLSearchParams([['likes', likes.toString()], ['index', i.toString()]]).toString();
+
+      await fetch(url, {
+        method: 'post'
+      });
     });
   }
 }
@@ -227,6 +255,7 @@ function updateElements () {
   }
   updateCollapsibles();
   updateCommentForms();
+  updateLikeButtons();
 }
 
 function createPostHTML (post) {
@@ -261,8 +290,8 @@ function createPostHTML (post) {
       <div class="text-muted">
         <p class="pt-2 mb-0 small lh-sm">
           <!--Like Button-->
-          <button class="navbar-toggler text-gray-dark highlight" style="padding-left: 8px;" type="button"><strong>Like</strong></button>
-          <span class="badge text-bg-light rounded-pill align-text-bottom">0</span>
+          <button class="navbar-toggler text-gray-dark highlight like" style="padding-left: 8px;" type="button"><strong>Like</strong></button>
+          <span class="badge text-bg-light rounded-pill align-text-bottom">${post.likes}</span>
 
           <!--Comment Button-->
           <button type="button" class="navbar-toggler text-gray-dark highlight collapser" style="padding-left: 8px;" type="button"><strong>Comment</strong></button>
