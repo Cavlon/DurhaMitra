@@ -151,7 +151,7 @@ function displayImages (event) {
   const files = event.target.files;
   let imagesHTML = '';
   for (let i = 0; i < files.length; i++) {
-    imagesHTML += `<img class="pt-3" src="${URL.createObjectURL(files[i])}" style="max-width: 350px; max-height: 900px"></img>`;
+    imagesHTML += `<img class="pt-3" src="${URL.createObjectURL(files[i])}" style="max-width: 350px; max-height: 900px"></img><br>`;
   }
   imageHolder.innerHTML = imagesHTML;
 };
@@ -161,14 +161,13 @@ function encodeImage (images) {
   // Promise to ensure all images are encoded
   return new Promise((resolve) => {
     // eslint-disable-next-line prefer-const
-    let encodedImages = [];
+    let encodedImages = new Array(images.length);
     for (let i = 0; i < images.length; i++) {
       const image = images[i];
 
       // Checks if the image is empty
       if (image.type === 'application/octet-stream') {
-        images.pop(i);
-        i--;
+        return resolve(encodedImages);
       } else {
         // eslint-disable-next-line no-undef
         const fileReader = new FileReader();
@@ -176,15 +175,22 @@ function encodeImage (images) {
         // Modified code from https://stackoverflow.com/questions/6150289/how-can-i-convert-an-image-into-base64-string-using-javascript
         fileReader.onload = function (fileLoadedEvent) {
           const srcData = fileLoadedEvent.target.result; // <--- data: base64
-          encodedImages.push(srcData);
-          if (encodedImages.length === images.length) {
+          encodedImages[i] = srcData;
+
+          // Checks if every image has been encoded
+          let full = true;
+          for (let j = 0; j < encodedImages.length; j++) {
+            if (typeof (encodedImages[j]) === 'undefined') {
+              full = false;
+              break;
+            }
+          }
+
+          if (full) {
             return resolve(encodedImages);
           }
         };
         fileReader.readAsDataURL(image);
-      }
-      if (encodedImages.length === images.length) {
-        return resolve(encodedImages);
       }
     }
   });
@@ -263,7 +269,7 @@ function createPostHTML (post) {
   if (post.images) {
     post.images.forEach(image => {
       imagesHTML += `
-      <img class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="auto" height="300" src="${image}" role="img" aria-label="Post Image" preserveAspectRatio="xMidYMid slice" focusable="false"> \n
+      <img class="post-image img-fluid" height="300" src="${image}" alt="Post Image"> \n
       `;
     });
   }
@@ -272,7 +278,7 @@ function createPostHTML (post) {
       <!--Text-->
       <div class="d-flex text-muted pt-3">
         <!--Profile Pic-->
-        <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/${post.college}.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <img class="profile-image flex-shrink-0 me-2 rounded" width="32" height="32" src="./assets/images/${post.college}.png" alt="${post.college} profile picture">
   
         <p class="pb-3 mb-0 small lh-sm">
           <span class="d-block">
@@ -350,7 +356,7 @@ async function addComment (index) {
     commentHTML += `
     <div class="d-flex text-muted border-top" style="padding-top: 7px; margin-bottom: -5px;">
       <!--Profile Pic-->
-      <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="20" height="20" src="./assets/images/${comments[i].college}.png" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+      <img class="profile-image flex-shrink-0 me-2 rounded" width="20" height="20" src="./assets/images/${comments[i].college}.png" alt="${comments[i].college} profile picture">
 
       <p class="pb-3 pt-1 mb-0 lh-1" style="font-size:.8em">
         <!--Username-->
