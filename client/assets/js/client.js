@@ -3,28 +3,23 @@ const postsHTML = document.getElementById('posts');
 const imageHolder = document.getElementById('uploadedImages');
 const allPostsLabel = document.getElementById('allPosts');
 const visiblePostsLabel = document.getElementById('visiblePosts');
+const searchBar = document.getElementById('searchBar');
+const allPostsBtn = document.getElementById('allPostsBtn');
 
 let commentForms;
 let commentSections;
 let collapsers;
 let collapsibles;
 let likeButtons;
+let postIndexes = [];
 
 const MAX_WIDTH = 500;
 const MAX_HEIGHT = 300;
 
 window.onload = async function () {
-  const response = await fetch('http://127.0.0.1:8080/posts');
-  const body = await response.text();
-  const posts = JSON.parse(body);
-  for (let i = posts.length - 1; i >= 0; i--) {
-    createPostHTML(posts[i]);
-  }
-
-  updateElements();
+  displayAllPosts();
   postForm.reset();
-  allPostsLabel.innerHTML = posts.length;
-  visiblePostsLabel.innerHTML = posts.length;
+  searchBar.reset();
 };
 
 // Submits the post form
@@ -33,8 +28,11 @@ postForm.addEventListener('submit', async function (event) {
   const formData = new FormData(postForm);
   event.preventDefault();
 
+  displayAllPosts();
+
   const images = formData.getAll('imageUpload');
   const encodedImages = await encodeImage(images);
+  console.log(encodedImages.length);
   for (let i = 0; i < encodedImages.length; i++) {
     const compressed = await reduceImageSize(encodedImages[i]);
     if (compressed.length < encodedImages[i].length) {
@@ -65,10 +63,35 @@ postForm.addEventListener('submit', async function (event) {
     },
     body: postJSON
   });
-  await addPost(0);
+  addPost(0);
   postForm.reset();
   imageHolder.innerHTML = '';
 });
+
+searchBar.addEventListener('submit', async function (event) {
+  // eslint-disable-next-line no-undef
+  const formData = new FormData(searchBar);
+  event.preventDefault();
+
+  const url = new URL('http://127.0.0.1:8080/search/');
+  url.search = new URLSearchParams([['search', formData.get('search')]]).toString();
+
+  const response = await fetch(url);
+  const foundPostsJSON = await response.text();
+  const data = JSON.parse(foundPostsJSON);
+  const foundPosts = data.foundPosts;
+  postIndexes = data.indexes;
+
+  postsHTML.innerHTML = '';
+  for (let i = foundPosts.length - 1; i >= 0; i--) {
+    createPostHTML(foundPosts[i]);
+  }
+
+  updateElements();
+  visiblePostsLabel.innerHTML = foundPosts.length;
+});
+
+allPostsBtn.addEventListener('click', displayAllPosts);
 
 function updateCommentForms () {
   commentForms = document.getElementsByClassName('createComment');
@@ -85,7 +108,7 @@ function updateCommentForms () {
       const commentJSON = JSON.stringify(data);
 
       const url = new URL('http://127.0.0.1:8080/uploadComment/');
-      url.search = new URLSearchParams([['index', i.toString()]]).toString();
+      url.search = new URLSearchParams([['index', postIndexes[i].toString()]]).toString();
 
       await fetch(url, {
         method: 'post',
@@ -97,7 +120,7 @@ function updateCommentForms () {
       });
 
       commentForms[i].reset();
-      addComment(i);
+      addComment(postIndexes[i], i);
     });
   }
 }
@@ -145,6 +168,23 @@ function updateCollapsibles () {
   }
 }
 
+async function displayAllPosts () {
+  const response = await fetch('http://127.0.0.1:8080/posts');
+  const body = await response.text();
+  const posts = JSON.parse(body);
+  postsHTML.innerHTML = '';
+  postIndexes = [];
+  for (let i = posts.length - 1; i >= 0; i--) {
+    createPostHTML(posts[i]);
+    postIndexes.push(posts.length - 1 - i);
+  }
+
+  updateElements();
+  searchBar.reset();
+  visiblePostsLabel.innerHTML = posts.length;
+  allPostsLabel.innerHTML = posts.length;
+}
+
 // Displays images in the create post tab
 // eslint-disable-next-line no-unused-vars
 function displayImages (event) {
@@ -167,6 +207,7 @@ function encodeImage (images) {
 
       // Checks if the image is empty
       if (image.type === 'application/octet-stream') {
+        encodedImages = [];
         return resolve(encodedImages);
       } else {
         // eslint-disable-next-line no-undef
@@ -246,18 +287,19 @@ async function addPost (index) {
   const post = JSON.parse(postJSON);
 
   createPostHTML(post);
+  postIndexes.push(postIndexes.length);
 
   updateElements();
 
-  allPostsLabel.innerHTML = parseInt(allPostsLabel.innerHTML) + 1;
-  visiblePostsLabel.innerHTML = allPostsLabel.innerHTML;
+  allPostsLabel.innerHTML = postIndexes.length - 1;
+  visiblePostsLabel.innerHTML = postIndexes.length - 1;
 }
 
 function updateElements () {
   commentSections = document.getElementsByClassName('commentSection');
 
   for (let i = 0; i < commentSections.length; i++) {
-    addComment(i);
+    addComment(postIndexes[i], i);
   }
   updateCollapsibles();
   updateCommentForms();
@@ -269,7 +311,7 @@ function createPostHTML (post) {
   if (post.images) {
     post.images.forEach(image => {
       imagesHTML += `
-      <img class="post-image img-fluid" height="300" src="${image}" alt="Post Image"> \n
+      <img class="post-image img-fluid" height="300" src="${image}" alt="Post Image">
       `;
     });
   }
@@ -339,17 +381,17 @@ function createPostHTML (post) {
       <div class="commentSection" style="padding-left: 30px;">
         
       </div>
-    </div> \n
+    </div>
   ` + postsHTML.innerHTML;
 }
 
-async function addComment (index) {
+async function addComment (index, sectionIndex) {
   const url = new URL('http://127.0.0.1:8080/comments/');
   url.search = new URLSearchParams([['index', index.toString()]]).toString();
   const response = await fetch(url);
   const commentJSON = await response.text();
   const comments = JSON.parse(commentJSON);
-  const section = commentSections[index];
+  const section = commentSections[sectionIndex];
 
   let commentHTML = '';
   for (let i = 0; i < comments.length; i++) {
@@ -364,7 +406,7 @@ async function addComment (index) {
         <!--Post Text-->
         ${comments[i].text}
       </p>
-    </div> \n
+    </div>
     `;
   };
   section.innerHTML = commentHTML;

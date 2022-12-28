@@ -51,4 +51,23 @@ app.get('/comments', function (req, resp) {
   resp.send(comments[req.query.index]);
 });
 
+app.get('/search', function (req, resp) {
+  // eslint-disable-next-line prefer-const
+  let foundPosts = [];
+  // eslint-disable-next-line prefer-const
+  let indexes = [];
+  const query = req.query.search.toLowerCase();
+  for (let i = 0; i < posts.length; i++) {
+    if (posts[i].name.includes(query) || posts[i].text.includes(query)) {
+      foundPosts.push(posts[i]);
+      indexes.push(i);
+    }
+  }
+  const data = {
+    foundPosts,
+    indexes
+  };
+  resp.send(data);
+});
+
 app.listen(8080);

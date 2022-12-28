@@ -28,20 +28,21 @@ body {
   color: rgba(255, 255, 255, .75);
 }
 
-.nav-scroller .nav-link {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  font-size: .875rem;
+.navbar .nav-link {
+  padding-top: .3rem;
+  padding-bottom: .3rem;
+  font-size: .9rem;
   color: #6c757d;
 }
 
-.nav-scroller .nav-link:hover {
-  color: #007bff;
-}
-
-.nav-scroller .active {
+.navbar .active {
   font-weight: 500;
   color: #343a40;
+}
+
+.navbar .active:hover {
+  color: #007bff;
+  cursor: pointer;
 }
 
 .highlight {
