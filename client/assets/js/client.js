@@ -21,6 +21,8 @@ let liked = [];
 const MAX_WIDTH = 500;
 const MAX_HEIGHT = 300;
 
+const retryAttempts = 5;
+
 window.onload = async function () {
   displayAllPosts();
   for (let i = 0; i < postIndexes.length; i++) {
@@ -31,7 +33,11 @@ window.onload = async function () {
 };
 
 // Submits the post form
-postForm.addEventListener('submit', async function (event) {
+postForm.addEventListener('submit', function (event) {
+  PostForm(event);
+});
+
+async function PostForm (event, attempts = retryAttempts) {
   try {
     // eslint-disable-next-line no-undef
     const formData = new FormData(postForm);
@@ -80,10 +86,17 @@ postForm.addEventListener('submit', async function (event) {
     postError.innerHTML = '';
   } catch (e) {
     postError.innerHTML = e;
+    if (attempts !== 0) {
+      PostForm(event, attempts - 1);
+    }
   }
+}
+
+searchBar.addEventListener('submit', function (event) {
+  SearchBar(event);
 });
 
-searchBar.addEventListener('submit', async function (event) {
+async function SearchBar (event, attempts = retryAttempts) {
   try {
     // eslint-disable-next-line no-undef
     const formData = new FormData(searchBar);
@@ -111,83 +124,102 @@ searchBar.addEventListener('submit', async function (event) {
     displayError.innerHTML = '';
   } catch (e) {
     displayError.innerHTML = 'Search Error: ' + e;
+    if (attempts !== 0) {
+      SearchBar(event, attempts - 1);
+    }
   }
-});
+}
 
 allPostsBtn.addEventListener('click', displayAllPosts);
 
 function updateCommentForms () {
   commentForms = document.getElementsByClassName('createComment');
   for (let i = 0; i < commentForms.length; i++) {
-    commentForms[i].addEventListener('submit', async function (event) {
-      try {
-        // eslint-disable-next-line no-undef
-        const formData = new FormData(commentForms[i]);
-        event.preventDefault();
-        const data = {
-          name: formData.get('name'),
-          college: formData.get('college'),
-          text: formData.get('commentText')
-        };
-        const commentJSON = JSON.stringify(data);
-
-        const url = new URL('http://127.0.0.1:8080/uploadComment/');
-        url.search = new URLSearchParams([['index', postIndexes[i].toString()]]).toString();
-
-        const response = await fetch(url, {
-          method: 'post',
-          headers: {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json'
-          },
-          body: commentJSON
-        });
-        if (!response.ok) {
-          throw new Error(response.status);
-        }
-        commentForms[i].reset();
-        addComment(postIndexes[i], i);
-      } catch (e) {
-        displayError.innerHTML = 'Comment Error: ' + e;
-      }
+    commentForms[i].addEventListener('submit', function (event) {
+      CommentForm(event, i);
     });
+  }
+}
+
+async function CommentForm (event, i, attempts = retryAttempts) {
+  try {
+    // eslint-disable-next-line no-undef
+    const formData = new FormData(commentForms[i]);
+    event.preventDefault();
+    const data = {
+      name: formData.get('name'),
+      college: formData.get('college'),
+      text: formData.get('commentText')
+    };
+    const commentJSON = JSON.stringify(data);
+
+    const url = new URL('http://127.0.0.1:8080/uploadComment/');
+    url.search = new URLSearchParams([['index', postIndexes[i].toString()]]).toString();
+
+    const response = await fetch(url, {
+      method: 'post',
+      headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'application/json'
+      },
+      body: commentJSON
+    });
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    commentForms[i].reset();
+    displayError.innerHTML = '';
+    addComment(postIndexes[i], i);
+  } catch (e) {
+    displayError.innerHTML = 'Comment Error: ' + e;
+    if (attempts !== 0) {
+      CommentForm(event, i, attempts - 1);
+    }
   }
 }
 
 function updateLikeButtons () {
   likeButtons = document.getElementsByClassName('like');
   for (let i = 0; i < likeButtons.length; i++) {
-    likeButtons[i].addEventListener('click', async function (event) {
-      try {
-        const likeDisplay = likeButtons[i].nextElementSibling;
-        let likes = parseInt(likeDisplay.innerHTML);
-        if (liked[postIndexes[i]]) {
-          likes -= 1;
-          likeButtons[i].classList.remove('text-purple');
-          likeDisplay.classList.remove('text-purple');
-        } else {
-          likes += 1;
-          likeButtons[i].classList.add('text-purple');
-          likeDisplay.classList.add('text-purple');
-        }
-        liked[postIndexes[i]] = !liked[postIndexes[i]];
-
-        likeDisplay.innerHTML = likes;
-        const url = new URL('http://127.0.0.1:8080/changeLikes/');
-        url.search = new URLSearchParams([['likes', likes.toString()], ['index', i.toString()]]).toString();
-
-        const response = await fetch(url, {
-          method: 'post'
-        });
-        if (!response.ok) {
-          throw new Error(response.status);
-        }
-      } catch (e) {
-        displayError.innerHTML = 'Like Error: ' + e;
-      }
+    likeButtons[i].addEventListener('click', function (event) {
+      LikeButton(event, i);
     });
     if (liked[postIndexes[i]]) {
       likeButtons[i].classList.add('text-purple');
+    }
+  }
+}
+
+async function LikeButton (event, i, attempts = retryAttempts) {
+  try {
+    const likeDisplay = likeButtons[i].nextElementSibling;
+    let likes = parseInt(likeDisplay.innerHTML);
+    if (liked[postIndexes[i]]) {
+      likes -= 1;
+      likeButtons[i].classList.remove('text-purple');
+      likeDisplay.classList.remove('text-purple');
+    } else {
+      likes += 1;
+      likeButtons[i].classList.add('text-purple');
+      likeDisplay.classList.add('text-purple');
+    }
+    liked[postIndexes[i]] = !liked[postIndexes[i]];
+
+    likeDisplay.innerHTML = likes;
+    const url = new URL('http://127.0.0.1:8080/changeLikes/');
+    url.search = new URLSearchParams([['likes', likes.toString()], ['index', i.toString()]]).toString();
+
+    const response = await fetch(url, {
+      method: 'post'
+    });
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    displayError.innerHTML = '';
+  } catch (e) {
+    displayError.innerHTML = 'Like Error: ' + e;
+    if (attempts !== 0) {
+      LikeButton(event, i, attempts - 1);
     }
   }
 }
@@ -209,7 +241,7 @@ function updateCollapsibles () {
   }
 }
 
-async function displayAllPosts () {
+async function displayAllPosts (attempts = retryAttempts) {
   try {
     const response = await fetch('http://127.0.0.1:8080/posts');
     if (!response.ok) {
@@ -228,8 +260,12 @@ async function displayAllPosts () {
     searchBar.reset();
     visiblePostsLabel.innerHTML = posts.length;
     allPostsLabel.innerHTML = posts.length;
+    displayError.innerHTML = '';
   } catch (e) {
     displayError.innerHTML = 'All Posts Display Error: ' + e;
+    if (attempts !== 0) {
+      displayAllPosts(attempts - 1);
+    }
   }
 }
 
@@ -327,7 +363,7 @@ async function reduceImageSize (base64Img) {
 }
 
 // Loads all the posts into the DOM
-async function addPost () {
+async function addPost (attempts = retryAttempts) {
   try {
     const url = new URL('http://127.0.0.1:8080/posts/');
     url.search = new URLSearchParams([['index', '0']]).toString();
@@ -346,8 +382,12 @@ async function addPost () {
 
     allPostsLabel.innerHTML = postIndexes.length;
     visiblePostsLabel.innerHTML = postIndexes.length;
+    displayError.innerHTML = '';
   } catch (e) {
     displayError.innerHTML = 'Post Display Error: ' + e;
+    if (attempts !== 0) {
+      addPost(attempts - 1);
+    }
   }
 }
 
@@ -442,7 +482,7 @@ function createPostHTML (post) {
   ` + postsHTML.innerHTML;
 }
 
-async function addComment (index, sectionIndex) {
+async function addComment (index, sectionIndex, attempts = retryAttempts) {
   try {
     const url = new URL('http://127.0.0.1:8080/comments/');
     url.search = new URLSearchParams([['index', index.toString()]]).toString();
@@ -471,7 +511,11 @@ async function addComment (index, sectionIndex) {
       `;
     };
     section.innerHTML = commentHTML;
+    displayError.innerHTML = '';
   } catch (e) {
     displayError.innerHTML = 'Comment Display Error: ' + e;
+    if (attempts !== 0) {
+      addComment(index, sectionIndex, attempts - 1);
+    }
   }
 }
