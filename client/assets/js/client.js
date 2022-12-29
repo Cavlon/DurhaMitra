@@ -12,12 +12,17 @@ let collapsers;
 let collapsibles;
 let likeButtons;
 let postIndexes = [];
+// eslint-disable-next-line prefer-const
+let liked = [];
 
 const MAX_WIDTH = 500;
 const MAX_HEIGHT = 300;
 
 window.onload = async function () {
   displayAllPosts();
+  for (let i = 0; i < postIndexes.length; i++) {
+    liked.push(false);
+  }
   postForm.reset();
   searchBar.reset();
 };
@@ -63,7 +68,7 @@ postForm.addEventListener('submit', async function (event) {
     },
     body: postJSON
   });
-  addPost(0);
+  addPost();
   postForm.reset();
   imageHolder.innerHTML = '';
 });
@@ -131,7 +136,7 @@ function updateLikeButtons () {
     likeButtons[i].addEventListener('click', async function (event) {
       const likeDisplay = likeButtons[i].nextElementSibling;
       let likes = parseInt(likeDisplay.innerHTML);
-      if (likeButtons[i].classList.contains('text-purple')) {
+      if (liked[postIndexes[i]]) {
         likes -= 1;
         likeButtons[i].classList.remove('text-purple');
         likeDisplay.classList.remove('text-purple');
@@ -140,6 +145,8 @@ function updateLikeButtons () {
         likeButtons[i].classList.add('text-purple');
         likeDisplay.classList.add('text-purple');
       }
+      liked[postIndexes[i]] = !liked[postIndexes[i]];
+
       likeDisplay.innerHTML = likes;
       const url = new URL('http://127.0.0.1:8080/changeLikes/');
       url.search = new URLSearchParams([['likes', likes.toString()], ['index', i.toString()]]).toString();
@@ -148,6 +155,10 @@ function updateLikeButtons () {
         method: 'post'
       });
     });
+
+    if (liked[postIndexes[i]]) {
+      likeButtons[i].classList.add('text-purple');
+    }
   }
 }
 
@@ -279,20 +290,21 @@ async function reduceImageSize (base64Img) {
 }
 
 // Loads all the posts into the DOM
-async function addPost (index) {
+async function addPost () {
   const url = new URL('http://127.0.0.1:8080/posts/');
-  url.search = new URLSearchParams([['index', index.toString()]]).toString();
+  url.search = new URLSearchParams([['index', '0']]).toString();
   const response = await fetch(url);
   const postJSON = await response.text();
   const post = JSON.parse(postJSON);
 
   createPostHTML(post);
   postIndexes.push(postIndexes.length);
+  liked.unshift(false);
 
   updateElements();
 
-  allPostsLabel.innerHTML = postIndexes.length - 1;
-  visiblePostsLabel.innerHTML = postIndexes.length - 1;
+  allPostsLabel.innerHTML = postIndexes.length;
+  visiblePostsLabel.innerHTML = postIndexes.length;
 }
 
 function updateElements () {
@@ -301,6 +313,7 @@ function updateElements () {
   for (let i = 0; i < commentSections.length; i++) {
     addComment(postIndexes[i], i);
   }
+
   updateCollapsibles();
   updateCommentForms();
   updateLikeButtons();
