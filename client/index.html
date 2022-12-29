@@ -91,6 +91,7 @@
         </div>
         <div class="offcanvas-body">
           <div class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <h6 class="error" id="postError"></h6>
             <form method="post" id="createPost" class="form" enctype="multipart/form-data">
               <input class="form-control me-2" type="text" name="name" placeholder="Name" aria-label="Name" required><br>
               <select class="form-control me-2" name="college">
@@ -112,7 +113,7 @@
                 <option value="van-mildert">Van Mildert College</option>
                 <option value="ustinov">Ustinov College</option>
               </select><br>
-              <textarea class="form-control" name="postText" rows="2" style="background: #fff;" placeholder="Post Text"></textarea><br>
+              <textarea class="form-control" name="postText" rows="2" style="background: #fff;" placeholder="Post Text" required></textarea><br>
               <input type="file" name="imageUpload" id="imageUpload" accept="image/png, image/gif, image/jpeg" onchange="displayImages(event)" style="display: none;" multiple>
               <label class="highlight" for="imageUpload" style="cursor: pointer;"><strong>Upload Images</strong></label><br>
               <input style="margin-top: 20px;" class="submit" type="submit" value="Submit">
@@ -141,6 +142,7 @@
           </a>
         </li>
       </ul>
+      <h6 class="error" style="padding-top: 5px; padding-right: 10px;" id="displayError"></h6>
       <form class="d-flex" id="searchBar">
         <input class="form-control me-2" type="text" name="search" placeholder="Search" aria-label="Search" style="height: 30px;">
         <button class="btn btn-outline-success btn-sm" type="submit">Search</button>

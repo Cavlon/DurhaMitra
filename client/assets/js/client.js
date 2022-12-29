@@ -6,6 +6,9 @@ const visiblePostsLabel = document.getElementById('visiblePosts');
 const searchBar = document.getElementById('searchBar');
 const allPostsBtn = document.getElementById('allPostsBtn');
 
+const postError = document.getElementById('postError');
+const displayError = document.getElementById('displayError');
+
 let commentForms;
 let commentSections;
 let collapsers;
@@ -29,71 +32,86 @@ window.onload = async function () {
 
 // Submits the post form
 postForm.addEventListener('submit', async function (event) {
-  // eslint-disable-next-line no-undef
-  const formData = new FormData(postForm);
-  event.preventDefault();
+  try {
+    // eslint-disable-next-line no-undef
+    const formData = new FormData(postForm);
+    event.preventDefault();
 
-  displayAllPosts();
+    displayAllPosts();
 
-  const images = formData.getAll('imageUpload');
-  const encodedImages = await encodeImage(images);
-  console.log(encodedImages.length);
-  for (let i = 0; i < encodedImages.length; i++) {
-    const compressed = await reduceImageSize(encodedImages[i]);
-    if (compressed.length < encodedImages[i].length) {
-      encodedImages[i] = compressed;
+    const images = formData.getAll('imageUpload');
+    const encodedImages = await encodeImage(images);
+    for (let i = 0; i < encodedImages.length; i++) {
+      const compressed = await reduceImageSize(encodedImages[i]);
+      if (compressed.length < encodedImages[i].length) {
+        encodedImages[i] = compressed;
+      }
     }
+
+    const date = new Date();
+    const hours = date.getUTCHours();
+    const mins = date.getUTCMinutes();
+    const secs = date.getUTCSeconds();
+    const dateStr = `${date.getUTCDate()}/${date.getUTCMonth()}/${date.getUTCFullYear()} ${(hours < 10) ? '0' + hours.toString() : hours}:${(mins < 10) ? '0' + mins.toString() : mins}:${(secs < 10) ? '0' + secs.toString() : secs}`;
+
+    const data = {
+      name: formData.get('name'),
+      college: formData.get('college'),
+      text: formData.get('postText'),
+      date: dateStr,
+      likes: 0,
+      images: encodedImages
+    };
+    const postJSON = JSON.stringify(data);
+    const response = await fetch('http://127.0.0.1:8080/uploadPost', {
+      method: 'post',
+      headers: {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'application/json'
+      },
+      body: postJSON
+    });
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    addPost();
+    postForm.reset();
+    imageHolder.innerHTML = '';
+    postError.innerHTML = '';
+  } catch (e) {
+    postError.innerHTML = e;
   }
-
-  const date = new Date();
-  const hours = date.getUTCHours();
-  const mins = date.getUTCMinutes();
-  const secs = date.getUTCSeconds();
-  const dateStr = `${date.getUTCDate()}/${date.getUTCMonth()}/${date.getUTCFullYear()} ${(hours < 10) ? '0' + hours.toString() : hours}:${(mins < 10) ? '0' + mins.toString() : mins}:${(secs < 10) ? '0' + secs.toString() : secs}`;
-
-  const data = {
-    name: formData.get('name'),
-    college: formData.get('college'),
-    text: formData.get('postText'),
-    date: dateStr,
-    likes: 0,
-    images: encodedImages
-  };
-  const postJSON = JSON.stringify(data);
-  await fetch('http://127.0.0.1:8080/uploadPost', {
-    method: 'post',
-    headers: {
-    Accept: 'application/json, text/plain, */*',
-    'Content-Type': 'application/json'
-    },
-    body: postJSON
-  });
-  addPost();
-  postForm.reset();
-  imageHolder.innerHTML = '';
 });
 
 searchBar.addEventListener('submit', async function (event) {
-  // eslint-disable-next-line no-undef
-  const formData = new FormData(searchBar);
-  event.preventDefault();
+  try {
+    // eslint-disable-next-line no-undef
+    const formData = new FormData(searchBar);
+    event.preventDefault();
 
-  const url = new URL('http://127.0.0.1:8080/search/');
-  url.search = new URLSearchParams([['search', formData.get('search')]]).toString();
+    const url = new URL('http://127.0.0.1:8080/search/');
+    url.search = new URLSearchParams([['search', formData.get('search')]]).toString();
 
-  const response = await fetch(url);
-  const foundPostsJSON = await response.text();
-  const data = JSON.parse(foundPostsJSON);
-  const foundPosts = data.foundPosts;
-  postIndexes = data.indexes;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    const foundPostsJSON = await response.text();
+    const data = JSON.parse(foundPostsJSON);
+    const foundPosts = data.foundPosts;
+    postIndexes = data.indexes;
 
-  postsHTML.innerHTML = '';
-  for (let i = foundPosts.length - 1; i >= 0; i--) {
-    createPostHTML(foundPosts[i]);
+    postsHTML.innerHTML = '';
+    for (let i = foundPosts.length - 1; i >= 0; i--) {
+      createPostHTML(foundPosts[i]);
+    }
+
+    updateElements();
+    visiblePostsLabel.innerHTML = foundPosts.length;
+    displayError.innerHTML = '';
+  } catch (e) {
+    displayError.innerHTML = 'Search Error: ' + e;
   }
-
-  updateElements();
-  visiblePostsLabel.innerHTML = foundPosts.length;
 });
 
 allPostsBtn.addEventListener('click', displayAllPosts);
@@ -102,30 +120,36 @@ function updateCommentForms () {
   commentForms = document.getElementsByClassName('createComment');
   for (let i = 0; i < commentForms.length; i++) {
     commentForms[i].addEventListener('submit', async function (event) {
-      // eslint-disable-next-line no-undef
-      const formData = new FormData(commentForms[i]);
-      event.preventDefault();
-      const data = {
-        name: formData.get('name'),
-        college: formData.get('college'),
-        text: formData.get('commentText')
-      };
-      const commentJSON = JSON.stringify(data);
+      try {
+        // eslint-disable-next-line no-undef
+        const formData = new FormData(commentForms[i]);
+        event.preventDefault();
+        const data = {
+          name: formData.get('name'),
+          college: formData.get('college'),
+          text: formData.get('commentText')
+        };
+        const commentJSON = JSON.stringify(data);
 
-      const url = new URL('http://127.0.0.1:8080/uploadComment/');
-      url.search = new URLSearchParams([['index', postIndexes[i].toString()]]).toString();
+        const url = new URL('http://127.0.0.1:8080/uploadComment/');
+        url.search = new URLSearchParams([['index', postIndexes[i].toString()]]).toString();
 
-      await fetch(url, {
-        method: 'post',
-        headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-        },
-        body: commentJSON
-      });
-
-      commentForms[i].reset();
-      addComment(postIndexes[i], i);
+        const response = await fetch(url, {
+          method: 'post',
+          headers: {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+          },
+          body: commentJSON
+        });
+        if (!response.ok) {
+          throw new Error(response.status);
+        }
+        commentForms[i].reset();
+        addComment(postIndexes[i], i);
+      } catch (e) {
+        displayError.innerHTML = 'Comment Error: ' + e;
+      }
     });
   }
 }
@@ -134,28 +158,34 @@ function updateLikeButtons () {
   likeButtons = document.getElementsByClassName('like');
   for (let i = 0; i < likeButtons.length; i++) {
     likeButtons[i].addEventListener('click', async function (event) {
-      const likeDisplay = likeButtons[i].nextElementSibling;
-      let likes = parseInt(likeDisplay.innerHTML);
-      if (liked[postIndexes[i]]) {
-        likes -= 1;
-        likeButtons[i].classList.remove('text-purple');
-        likeDisplay.classList.remove('text-purple');
-      } else {
-        likes += 1;
-        likeButtons[i].classList.add('text-purple');
-        likeDisplay.classList.add('text-purple');
+      try {
+        const likeDisplay = likeButtons[i].nextElementSibling;
+        let likes = parseInt(likeDisplay.innerHTML);
+        if (liked[postIndexes[i]]) {
+          likes -= 1;
+          likeButtons[i].classList.remove('text-purple');
+          likeDisplay.classList.remove('text-purple');
+        } else {
+          likes += 1;
+          likeButtons[i].classList.add('text-purple');
+          likeDisplay.classList.add('text-purple');
+        }
+        liked[postIndexes[i]] = !liked[postIndexes[i]];
+
+        likeDisplay.innerHTML = likes;
+        const url = new URL('http://127.0.0.1:8080/changeLikes/');
+        url.search = new URLSearchParams([['likes', likes.toString()], ['index', i.toString()]]).toString();
+
+        const response = await fetch(url, {
+          method: 'post'
+        });
+        if (!response.ok) {
+          throw new Error(response.status);
+        }
+      } catch (e) {
+        displayError.innerHTML = 'Like Error: ' + e;
       }
-      liked[postIndexes[i]] = !liked[postIndexes[i]];
-
-      likeDisplay.innerHTML = likes;
-      const url = new URL('http://127.0.0.1:8080/changeLikes/');
-      url.search = new URLSearchParams([['likes', likes.toString()], ['index', i.toString()]]).toString();
-
-      await fetch(url, {
-        method: 'post'
-      });
     });
-
     if (liked[postIndexes[i]]) {
       likeButtons[i].classList.add('text-purple');
     }
@@ -180,20 +210,27 @@ function updateCollapsibles () {
 }
 
 async function displayAllPosts () {
-  const response = await fetch('http://127.0.0.1:8080/posts');
-  const body = await response.text();
-  const posts = JSON.parse(body);
-  postsHTML.innerHTML = '';
-  postIndexes = [];
-  for (let i = posts.length - 1; i >= 0; i--) {
-    createPostHTML(posts[i]);
-    postIndexes.push(posts.length - 1 - i);
-  }
+  try {
+    const response = await fetch('http://127.0.0.1:8080/posts');
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    const body = await response.text();
+    const posts = JSON.parse(body);
+    postsHTML.innerHTML = '';
+    postIndexes = [];
+    for (let i = posts.length - 1; i >= 0; i--) {
+      createPostHTML(posts[i]);
+      postIndexes.push(posts.length - 1 - i);
+    }
 
-  updateElements();
-  searchBar.reset();
-  visiblePostsLabel.innerHTML = posts.length;
-  allPostsLabel.innerHTML = posts.length;
+    updateElements();
+    searchBar.reset();
+    visiblePostsLabel.innerHTML = posts.length;
+    allPostsLabel.innerHTML = posts.length;
+  } catch (e) {
+    displayError.innerHTML = 'All Posts Display Error: ' + e;
+  }
 }
 
 // Displays images in the create post tab
@@ -291,20 +328,27 @@ async function reduceImageSize (base64Img) {
 
 // Loads all the posts into the DOM
 async function addPost () {
-  const url = new URL('http://127.0.0.1:8080/posts/');
-  url.search = new URLSearchParams([['index', '0']]).toString();
-  const response = await fetch(url);
-  const postJSON = await response.text();
-  const post = JSON.parse(postJSON);
+  try {
+    const url = new URL('http://127.0.0.1:8080/posts/');
+    url.search = new URLSearchParams([['index', '0']]).toString();
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    const postJSON = await response.text();
+    const post = JSON.parse(postJSON);
 
-  createPostHTML(post);
-  postIndexes.push(postIndexes.length);
-  liked.unshift(false);
+    createPostHTML(post);
+    postIndexes.push(postIndexes.length);
+    liked.unshift(false);
 
-  updateElements();
+    updateElements();
 
-  allPostsLabel.innerHTML = postIndexes.length;
-  visiblePostsLabel.innerHTML = postIndexes.length;
+    allPostsLabel.innerHTML = postIndexes.length;
+    visiblePostsLabel.innerHTML = postIndexes.length;
+  } catch (e) {
+    displayError.innerHTML = 'Post Display Error: ' + e;
+  }
 }
 
 function updateElements () {
@@ -380,7 +424,7 @@ function createPostHTML (post) {
                     <option value="van-mildert">Van Mildert College</option>
                     <option value="ustinov">Ustinov College</option>
                   </select><br>
-                  <textarea class="form-control" name="commentText" rows="2" style="background: #fff;" placeholder="Add a comment..."></textarea>
+                  <textarea class="form-control" name="commentText" rows="2" style="background: #fff;" placeholder="Add a comment..." required></textarea>
                 </div>
               </div>
               <div class="float-end mt-2 pt-1" style="padding-right: 30px;">
@@ -399,28 +443,35 @@ function createPostHTML (post) {
 }
 
 async function addComment (index, sectionIndex) {
-  const url = new URL('http://127.0.0.1:8080/comments/');
-  url.search = new URLSearchParams([['index', index.toString()]]).toString();
-  const response = await fetch(url);
-  const commentJSON = await response.text();
-  const comments = JSON.parse(commentJSON);
-  const section = commentSections[sectionIndex];
+  try {
+    const url = new URL('http://127.0.0.1:8080/comments/');
+    url.search = new URLSearchParams([['index', index.toString()]]).toString();
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    const commentJSON = await response.text();
+    const comments = JSON.parse(commentJSON);
+    const section = commentSections[sectionIndex];
 
-  let commentHTML = '';
-  for (let i = 0; i < comments.length; i++) {
-    commentHTML += `
-    <div class="d-flex text-muted border-top" style="padding-top: 7px; margin-bottom: -5px;">
-      <!--Profile Pic-->
-      <img class="profile-image flex-shrink-0 me-2 rounded" width="20" height="20" src="./assets/images/${comments[i].college}.png" alt="${comments[i].college} profile picture">
+    let commentHTML = '';
+    for (let i = 0; i < comments.length; i++) {
+      commentHTML += `
+      <div class="d-flex text-muted border-top" style="padding-top: 7px; margin-bottom: -5px;">
+        <!--Profile Pic-->
+        <img class="profile-image flex-shrink-0 me-2 rounded" width="20" height="20" src="./assets/images/${comments[i].college}.png" alt="${comments[i].college} profile picture">
 
-      <p class="pb-3 pt-1 mb-0 lh-1" style="font-size:.8em">
-        <!--Username-->
-        <strong class="d-block text-gray-dark">@${comments[i].name}</strong>
-        <!--Post Text-->
-        ${comments[i].text}
-      </p>
-    </div>
-    `;
-  };
-  section.innerHTML = commentHTML;
+        <p class="pb-3 pt-1 mb-0 lh-1" style="font-size:.8em">
+          <!--Username-->
+          <strong class="d-block text-gray-dark">@${comments[i].name}</strong>
+          <!--Post Text-->
+          ${comments[i].text}
+        </p>
+      </div>
+      `;
+    };
+    section.innerHTML = commentHTML;
+  } catch (e) {
+    displayError.innerHTML = 'Comment Display Error: ' + e;
+  }
 }
