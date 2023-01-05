@@ -55,10 +55,7 @@ async function PostForm (event, attempts = retryAttempts) {
     }
 
     const date = new Date();
-    const hours = date.getUTCHours();
-    const mins = date.getUTCMinutes();
-    const secs = date.getUTCSeconds();
-    const dateStr = `${date.getUTCDate()}/${date.getUTCMonth()}/${date.getUTCFullYear()} ${(hours < 10) ? '0' + hours.toString() : hours}:${(mins < 10) ? '0' + mins.toString() : mins}:${(secs < 10) ? '0' + secs.toString() : secs}`;
+    const dateStr = `${dateFormat(date.getUTCDate())}/${dateFormat(date.getUTCMonth() + 1)}/${dateFormat(date.getUTCFullYear())} ${dateFormat(date.getUTCHours())}:${dateFormat(date.getUTCMinutes())}:${dateFormat(date.getUTCSeconds())}`;
 
     const data = {
       name: formData.get('name'),
@@ -360,6 +357,10 @@ async function reduceImageSize (base64Img) {
         return resolve(canvas.toDataURL(), 'image/jpeg'); // this will return base64 image results after resize
     };
   });
+}
+
+function dateFormat (value) {
+  return (value < 10) ? '0' + value.toString() : value;
 }
 
 // Loads all the posts into the DOM

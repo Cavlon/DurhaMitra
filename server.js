@@ -58,7 +58,7 @@ app.get('/search', function (req, resp) {
   let indexes = [];
   const query = req.query.search.toLowerCase();
   for (let i = 0; i < posts.length; i++) {
-    if (posts[i].name.includes(query) || posts[i].text.includes(query)) {
+    if (posts[i].name.toLowerCase().includes(query) || posts[i].text.toLowerCase().includes(query)) {
       foundPosts.push(posts[i]);
       indexes.push(i);
     }
