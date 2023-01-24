@@ -93,7 +93,7 @@
           <div class="navbar-nav justify-content-end flex-grow-1 pe-3">
             <h6 class="error" id="postError"></h6>
             <form method="post" id="createPost" class="form" enctype="multipart/form-data">
-              <input class="form-control me-2" type="text" name="name" placeholder="Name" aria-label="Name" required><br>
+              <input class="form-control me-2" type="text" name="name" placeholder="Name" aria-label="Name"><br>
               <select class="form-control me-2" name="college">
                 <option value="collingwood">Collingwood College</option>
                 <option value="grey">Grey College</option>
@@ -113,7 +113,7 @@
                 <option value="van-mildert">Van Mildert College</option>
                 <option value="ustinov">Ustinov College</option>
               </select><br>
-              <textarea class="form-control" name="postText" rows="2" style="background: #fff;" placeholder="Post Text" required></textarea><br>
+              <textarea class="form-control" name="postText" rows="2" style="background: #fff;" placeholder="Post Text"></textarea><br>
               <input type="file" name="imageUpload" id="imageUpload" accept="image/png, image/gif, image/jpeg" onchange="displayImages(event)" style="display: none;" multiple>
               <label class="highlight" for="imageUpload" style="cursor: pointer;"><strong>Upload Images</strong></label><br>
               <input style="margin-top: 20px;" class="submit" type="submit" value="Submit">
@@ -150,41 +150,6 @@
     </div>
   </div>
 </div>
-
-<!-- <nav class="navbar navbar-expand-lg bg-body shadow-sm" aria-label="Main navigation">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Offcanvas navbar</a>
-
-    <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Notifications</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Profile</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Switch account</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Settings</a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-          </ul>
-        </li>
-      </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
-    </div>
-  </div>
-</nav> -->
 
 <main class="container">
   <div class="d-flex align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">

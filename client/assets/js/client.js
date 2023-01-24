@@ -42,8 +42,14 @@ async function PostForm (event, attempts = retryAttempts) {
     // eslint-disable-next-line no-undef
     const formData = new FormData(postForm);
     event.preventDefault();
+    const name = formData.get('name').replace(/\s/g, '');
+    const text = formData.get('postText').replace(/^\s+/g, '');
 
-    displayAllPosts();
+    if (name === '' || text === '') {
+      throw new Error('Fill in Name and Post Text fields');
+    }
+
+    await displayAllPosts();
 
     const images = formData.getAll('imageUpload');
     const encodedImages = await encodeImage(images);
@@ -58,15 +64,15 @@ async function PostForm (event, attempts = retryAttempts) {
     const dateStr = `${dateFormat(date.getUTCDate())}/${dateFormat(date.getUTCMonth() + 1)}/${dateFormat(date.getUTCFullYear())} ${dateFormat(date.getUTCHours())}:${dateFormat(date.getUTCMinutes())}:${dateFormat(date.getUTCSeconds())}`;
 
     const data = {
-      name: formData.get('name'),
+      name,
       college: formData.get('college'),
-      text: formData.get('postText'),
+      text,
       date: dateStr,
       likes: 0,
       images: encodedImages
     };
     const postJSON = JSON.stringify(data);
-    const response = await fetch('http://127.0.0.1:8080/uploadPost', {
+    const response = await fetch('http://127.0.0.1:8080/posts/new/', {
       method: 'post',
       headers: {
       Accept: 'application/json, text/plain, */*',
@@ -150,7 +156,7 @@ async function CommentForm (event, i, attempts = retryAttempts) {
     };
     const commentJSON = JSON.stringify(data);
 
-    const url = new URL('http://127.0.0.1:8080/uploadComment/');
+    const url = new URL('http://127.0.0.1:8080/comments/new/');
     url.search = new URLSearchParams([['index', postIndexes[i].toString()]]).toString();
 
     const response = await fetch(url, {
@@ -203,8 +209,9 @@ async function LikeButton (event, i, attempts = retryAttempts) {
     liked[postIndexes[i]] = !liked[postIndexes[i]];
 
     likeDisplay.innerHTML = likes;
-    const url = new URL('http://127.0.0.1:8080/changeLikes/');
-    url.search = new URLSearchParams([['likes', likes.toString()], ['index', i.toString()]]).toString();
+    const url = new URL('http://127.0.0.1:8080/likes/');
+    url.search = new URLSearchParams([['likes', likes.toString()], ['index', postIndexes[i].toString()]]).toString();
+    console.log(url);
 
     const response = await fetch(url, {
       method: 'post'
@@ -406,6 +413,7 @@ function updateElements () {
 
 function createPostHTML (post) {
   let imagesHTML = '';
+  console.log(post.name);
   if (post.images) {
     post.images.forEach(image => {
       imagesHTML += `
