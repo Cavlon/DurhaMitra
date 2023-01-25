@@ -104,9 +104,14 @@ async function SearchBar (event, attempts = retryAttempts) {
     // eslint-disable-next-line no-undef
     const formData = new FormData(searchBar);
     event.preventDefault();
+    const search = formData.get('search').replace(/^\s+/g, '');
+
+    if (search === '') {
+      await displayAllPosts();
+    }
 
     const url = new URL('http://127.0.0.1:8080/search/');
-    url.search = new URLSearchParams([['search', formData.get('search')]]).toString();
+    url.search = new URLSearchParams([['search', search]]).toString();
 
     const response = await fetch(url);
     if (!response.ok) {
@@ -149,10 +154,17 @@ async function CommentForm (event, i, attempts = retryAttempts) {
     // eslint-disable-next-line no-undef
     const formData = new FormData(commentForms[i]);
     event.preventDefault();
+    const name = formData.get('name').replace(/\s/g, '');
+    const text = formData.get('postText').replace(/^\s+/g, '');
+
+    if (name === '' || text === '') {
+      throw new Error('Fill in Name and Post Text fields');
+    }
+
     const data = {
-      name: formData.get('name'),
+      name,
       college: formData.get('college'),
-      text: formData.get('commentText')
+      text
     };
     const commentJSON = JSON.stringify(data);
 
